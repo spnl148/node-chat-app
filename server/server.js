@@ -8,6 +8,7 @@ const port = process.env.PORT || 3000;
 var app = express();
 
 var server = http.createServer(app);
+app.use(express.static(publicPath));
 var io = socketIO(server);
 io.on('connection', (socket) => {
     console.log('New user connected');
@@ -15,19 +16,19 @@ io.on('connection', (socket) => {
 
     socket.on('createMessage', (message) => {
         console.log('createMessage', message);
+        io.emit('newMessage', {
+            from: message.from,
+            text: message.text,
+            createdAt:new Date().getTime()
+        });
     });
 
-    socket.emit('newMessage',{
-        from:'Mit',
-        to:'Nil',
-        text:'Very good'
-    });
+   
 
     socket.on('disconnect', () => {
         console.log('User was disconnected');
     });
 })
-app.use(express.static(publicPath));
 
 server.listen(port, () => {
     console.log(`Server is up on port ${port}`);
