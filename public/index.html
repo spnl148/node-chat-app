@@ -4,8 +4,6 @@
 <head>
     <meta charset="utf-8" />
     <title>My Chat App</title>
-    <link rel="stylesheet" type="text/css" media="screen" href="main.css" />
-    <script src="main.js"></script>
 </head>
 
 <body>
@@ -13,3 +11,15 @@
 </body>
 
 </html>
+
+<script src="/socket.io/socket.io.js"></script>
+<script>
+    var socket = io();
+    socket.on('connect', () => {
+        console.log('Connected to server');
+    });
+
+    socket.on('disconnect', () => {
+        console.log('Disconnected from server');
+    });
+</script>
