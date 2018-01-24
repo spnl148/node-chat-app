@@ -56,6 +56,14 @@ socket.on('newLocationMessage', function (message) {
     scrollToBottom();
 });
 
+socket.on('updateUserList',function(users){
+    var ol = $('<ol></ol>');
+    users.forEach(function(user){
+        ol.append($('<li></li>').text(user));
+    });
+    $('#users').html(ol); 
+})
+
 $('#message-form').on('submit', function (e) {
     e.preventDefault();
     var messageTextbox = $('[name=message]');
@@ -64,7 +72,6 @@ $('#message-form').on('submit', function (e) {
         text: messageTextbox.val()
     }, function () {
         messageTextbox.val('');
-        // $("#messages").animate({ scrollTop: $("#messages").height() - $(document).height() });
     });
 });
 
