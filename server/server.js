@@ -21,10 +21,11 @@ io.on('connection', (socket) => {
         users.removeUser(socket.id);
         users.addUser(socket.id, params.name, params.room);
 
-        io.to(params.room).emit('updateUserList',users.getUserList(params.room));
+        io.to(params.room).emit('updateUserList',users.getUserList(params.room),params.room);
 
-        socket.emit('newMessage', generateMessage('Admin', 'Welcome to chat app'));
         socket.broadcast.to(params.room).emit('newMessage', generateMessage('Admin', `${params.name} has joined.`));
+        socket.broadcast.to(params.room).emit('noty1', generateMessage('Admin', `${params.name} is online.`));
+        
         callback();
     });
 
@@ -32,6 +33,7 @@ io.on('connection', (socket) => {
         var user = users.getUser(socket.id);
         if(user && isRealString(message.text)){
             io.to(user.room).emit('newMessage', generateMessage(user.name, message.text));
+            socket.broadcast.to(user.room).emit('noty', generateMessage(user.name, message.text));
         }
         callback();
     });
@@ -41,7 +43,7 @@ io.on('connection', (socket) => {
         io.to(user.room).emit('newLocationMessage', generateLocationMessage(user.name, coords.latitude, coords.longitude));
     });
 
-
+   
 
     socket.on('disconnect', () => {
         console.log('User was disconnected');
@@ -49,7 +51,8 @@ io.on('connection', (socket) => {
         if(user){
             io.to(user.room).emit('updateUserList',users.getUserList(user.room));
             io.to(user.room).emit('newMessage',generateMessage('Admin',`${user.name} has left.`));;
-        }
+            socket.broadcast.to(user.room).emit('noty1', generateMessage('Admin', `${user.name} has left.`));
+    }
     });
 });
 

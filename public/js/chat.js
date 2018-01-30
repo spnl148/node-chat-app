@@ -1,12 +1,12 @@
 var socket = io();
 socket.on('connect', function () {
     var params = $.deparam(window.location.search);
-    socket.emit('join',params,function(err){
-        if(err){
+    socket.emit('join', params, function (err) {
+        if (err) {
             alert(err);
-            window.location.href ='/';
+            window.location.href = '/';
         }
-        else{
+        else {
             console.log('No Error');
         }
     })
@@ -40,9 +40,23 @@ socket.on('newMessage', function (message) {
         from: message.from,
         createdAt: formattedTime
     });
+
+
     $('#messages').append(html);
+
     scrollToBottom();
 });
+socket.on('noty1', function (message) {
+    var formattedTime = moment(message.createdAt).format('hh:mm a');
+    notifyMe("", message.text, "");
+});
+socket.on('noty', function (message) {
+    var formattedTime = moment(message.createdAt).format('hh:mm a');
+    notifyMe(message.from, message.text, formattedTime);
+});
+
+
+
 
 socket.on('newLocationMessage', function (message) {
     var formattedTime = moment(message.createdAt).format('hh:mm a');
@@ -56,13 +70,16 @@ socket.on('newLocationMessage', function (message) {
     scrollToBottom();
 });
 
-socket.on('updateUserList',function(users){
+socket.on('updateUserList', function (users, roomName) {
     var ol = $('<ol></ol>');
-    users.forEach(function(user){
+    users.forEach(function (user) {
         ol.append($('<li></li>').text(user));
     });
-    $('#users').html(ol); 
-})
+    $('#users').html(ol);
+    $('#roomName').html(roomName);
+});
+
+
 
 $('#message-form').on('submit', function (e) {
     e.preventDefault();
@@ -91,3 +108,31 @@ locationButton.on('click', function () {
         alert('Unable to fetch location');
     });
 });
+
+
+var notifyMe = (user, comment, formattedTime) => {
+    debugger
+    if (!("Notification" in window)) {
+        alert("This browser does not support desktop notification");
+    }
+    else if (Notification.permission === "granted") {
+        var options = {
+            body: comment
+        };
+        var notification = new Notification(user + " " + formattedTime, options);
+    }
+    else if (Notification.permission !== 'denied') {
+        Notification.requestPermission(function (permission) {
+            if (!('permission' in Notification)) {
+                Notification.permission = permission;
+            }
+            if (permission === "granted") {
+                var options = {
+                    body: message,
+                    dir: "ltr"
+                };
+                var notification = new Notification(user + " Posted a comment", options);
+            }
+        });
+    }
+}
